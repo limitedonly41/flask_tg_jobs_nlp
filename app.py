@@ -5,7 +5,6 @@ import time
 import os
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.calibration import CalibratedClassifierCV
-import pandas as pd
 
 from sklearn.svm import LinearSVC
 import json
