@@ -5,7 +5,11 @@ import time
 import os
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.calibration import CalibratedClassifierCV
-
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
+import pymorphy2
+import re
 from sklearn.svm import LinearSVC
 import json
 
@@ -14,7 +18,30 @@ app = Flask(__name__)
 @app.route('/api/ml', methods=['GET', 'POST'])
 def add_message():
 	content = request.json
-	text = str(content['text'])
+	t = str(content['text'])
+
+	nltk.download('stopwords')
+	stop_words = stopwords.words('russian')
+	tokenizer = RegexpTokenizer(r'\w+')
+	text_1 = t.lower()
+	text_2 = text_1.replace("\\n", " ")
+	tokens = tokenizer.tokenize(text_2)
+	tokens_1 = [item for item in tokens if item not in stop_words]
+	text_3 = " ".join(["".join(txt) for txt in tokens_1])
+	print(text_3)
+	def clean_text(text):
+		text = text.replace("\\", " ").replace(u"╚", " ").replace(u"╩", " ")
+		text = text.lower()
+		text = re.sub('\-\s\r\n\s{1,}|\-\s\r\n|\r\n', '', text)  # deleting newlines and line-breaks
+		text = re.sub('[.,:;_%©?*,!@#$%^&()\d]|[+=]|[[]|[]]|[/]|"|\s{2,}|-', ' ', text)  # deleting symbols
+		text = " ".join(ma.parse(str(word))[0].normal_form for word in text.split())
+		text = ' '.join(word for word in text.split() if len(word) > 3)
+		#     text= text.encode("utf-8")
+
+		return text
+
+	ma = pymorphy2.MorphAnalyzer()
+	text = clean_text(text_3)
 
 	with open('vectorizer', 'rb') as vec:
 		count_vect = pickle.load(vec)
@@ -29,7 +56,6 @@ def add_message():
 		res = [0]
 		tags = [classes_cat[str(list(prob).index(max(prob)))]]
 		s = sorted(list(prob), reverse=True)
-		print(s)
 		for v in s[1:]:
 			if max(prob)/v < 2:
 				tags.append(classes_cat[str(list(prob).index(v))])
