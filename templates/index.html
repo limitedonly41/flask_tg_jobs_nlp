@@ -4,19 +4,24 @@
 <body>
 
 <div>
-<h1 align="center">Welcome/h1>
+<h1 align="center">Testing</h1>
 </div>
 
 
 
 <div>
-	<form method=post enctype=multipart/form-data>
-	    <input type=file name=file>
-	    <input type=submit value=Upload>
-	</form>
+    <form method="post">
+        <label for="title">Text</label>
+        <br>
+        <textarea type="text" name="text"
+               placeholder="Message title"
+               value="{{ request.form['title'] }}"></textarea>
+        <br>
+		<button type="submit">Submit</button>
+    </form>
 </div>
 
-<p align="center">{{ submission }}</p>
-<h2 align="center">{{ text }}</h2>
+<p align="center">{{ answer }}</p>
+<h2 align="center">{{ one_cat }}</h2>
 </body>
 </html>
